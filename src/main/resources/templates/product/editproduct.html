@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <meta charset="utf-8"/>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $(":input[data-inputmask-alias]").inputmask();
+            loadSupplierDropdown();
+        });
+
+        function saveProduct() {
+            var data = $("#productForm").serialize();
+            var isValidated = getValidationData(data);
+            if (!isValidated) {
+                return false;
+            } else {
+                $.ajax({
+                    type: "post",
+                    // url: "",
+                    url: "/saveproduct",
+                    data: data,
+                    dataType: "json",
+                    success: function (data) {
+                        if (!data.isError) {
+                            toasterDisplay("success", "Successfully Created.");
+                            setTimeout(function () {
+                                var url = "/createproduct";
+                                window.open(url, "_self");
+                            }, 1500);
+
+                        } else {
+                            toasterDisplay("error", "Product Creation Failed.");
+                        }
+                    },
+                    error: function (request, status, error) {
+                        toasterDisplay("error", "Product Creation Failed.");
+                    }
+                });
+            }
+        }
+
+        function getValidationData(data) {
+            // debugger
+            if (!$('#product_id').val()) {
+                swal.fire("Product Code can't be empty.");
+                return false;
+            }
+            if (!$('#product_name').val()) {
+                swal.fire("Product Name can't be empty.");
+                return false;
+            }
+
+            if (!$('#brand').val()) {
+                swal.fire("Brand can't be empty.");
+                return false;
+            }
+
+            if (!$('#manufacturing_date').val()) {
+                swal.fire("Manufacturing Date can't be empty.");
+                return false;
+            }
+
+            if (!$('#unit').val()) {
+                swal.fire("Unit can't be empty.");
+                return false;
+            }
+
+            if (!$('#unit_price').val()) {
+                swal.fire("Unit Price can't be empty.");
+                return false;
+            }
+
+            return true;
+        };
+
+        function loadSupplierDropdown() {
+            $.ajax({
+                type: "get",
+                url: "/api/listsupplier",
+                data: "",
+                dataType: "json",
+                success: function (data) {
+                    setSupplierItem(data);
+                }
+            });
+        }
+
+        function setSupplierItem(dataArray) {
+            var supplierId = [[${product.supplierId}]];
+            $.each(dataArray, function (id, obj) {
+                var isSelected = supplierId == obj.id ? 'selected' : '';
+                $("#sel_supplier").append("<option" + " " + isSelected + " " + "value='" + obj.id + "'>" + obj.name + "</option>");
+            });
+        }
+
+    </script>
+
+
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light">Product /</span> Edit Product
+            </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="m-2">
+                            <form id="productForm" onsubmit="event.preventDefault();">
+                                <h4> Product Information </h4>
+                                <div class="m-2 container-fluid"
+                                     style="background-color: #D4FFFF; border-radius: 10px;">
+                                    <br>
+                                    <div class="row">
+                                        <input type="hidden" name="id" id="id" th:value="${product.id}">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="product_id"> Product Code: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <input type="text" name="product_id" id="product_id"
+                                                   class="form-control" th:value="${product.productId}"
+                                                   required>
+                                        </div>
+
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="product_name"> Product Name: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <input type="text" name="product_name" id="product_name"
+                                                   class="form-control" th:value="${product.name}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="brand"> Brand: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <input type="text" name="brand" id="brand"
+                                                   class="form-control" th:value="${product.brand}" required>
+                                        </div>
+
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="manufacturing_date"> Manufacturing Date:
+                                                <span class="mandatoryfield"> * </span> </label>
+                                            <input type="text" name="manufacturing_date" id="manufacturing_date"
+                                                   data-inputmask-alias="dd/mm/yyyy"
+                                                   data-val="true"
+                                                   data-val-required="Required"
+                                                   placeholder="dd/mm/yyyy"
+                                                   class="form-control"
+                                                   th:value="${product.manufacturingDate}">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="colour"> Colour: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <input type="text" name="colour" id="colour" class="form-control"
+                                                   required th:value="${product.colour}">
+                                        </div>
+
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="description"> Description: </label>
+                                            <input type="text" name="description" id="description"
+                                                   class="form-control" th:value="${product.description}">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="unit"> Unit: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <input type="number" name="unit" id="unit" class="form-control"
+                                                   th:value="${product.unit}" required>
+                                        </div>
+
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="unit_price"> Unit Price: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <input type="number" name="unit_price" id="unit_price"
+                                                   th:value="${product.unitPrice}" class="form-control">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label" for="sel_supplier"> Supplier: <span
+                                                    class="mandatoryfield"> * </span> </label>
+                                            <select class="form-select" name="sel_supplier" id="sel_supplier">
+                                                <option value="">-Select-</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                                <br>
+                                <div class="mb-3" style="text-align: center;">
+<!--                                    <button id="btnResetMember" type="button" class="btn btn-warning"-->
+<!--                                            onclick="resetMemeberForm();"><i-->
+<!--                                            class="fa fa-check"></i> Reset-->
+<!--                                    </button>-->
+
+                                    <button id="btnSaveMember" name="btnSaveProduct" type="button"
+                                            class="btn btn-primary"
+                                            onclick="saveProduct();"><i
+                                            class="fa fa-check"></i>Save
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

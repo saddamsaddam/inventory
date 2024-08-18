@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <title>Change Password</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-10">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light"> User's Profile </span></h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+<!--                    <div th:replace="view/changepassword/create :: editcreate"></div>-->
+
+                    <div class="container" xmlns:th="http://www.w3.org/1999/xhtml">
+                        <form action="#" th:action="@{/user/update-password}" method="post">
+                            <h2> Change Password </h2>
+                            <div class="p-2 m-2 container-fluid" style="background-color: #D4FFFF; border-radius: 10px;">
+                                <div class="row">
+                                    <div th:if="${errorMessage}" class="text-danger">
+                                        <p th:text="${errorMessage}"></p>
+                                    </div>
+                                    <div th:if="${successMessage}" class="text-success">
+                                        <p th:text="${successMessage}"></p>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label" for="oldPassword">
+                                            Old Password : <span class="mandatoryfield"> * </span>
+                                        </label>
+                                        <input type="password" id="oldPassword" name="oldPassword" class="form-control" required />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label" for="newPassword">
+                                            New Password : <span class="mandatoryfield"> * </span>
+                                        </label>
+                                        <input type="password" name="newPassword" id="newPassword" class="form-control"
+                                               required />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label" for="confirmPassword">
+                                            Confirm Password : <span class="mandatoryfield"> * </span>
+                                        </label>
+                                        <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" id="btnUpdateUser" name="btnUpdateUser" class="btn btn-primary">Update</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</html>

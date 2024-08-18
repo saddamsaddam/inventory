@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <meta charset="utf-8"/>
+
+    <script type="text/javascript">
+        function showReport() {
+            var data = '';
+            var formData = $("#reportform").serialize();
+            var exportMode = $("#radioPDF").prop("checked") ? "pdf" : "xlsx"
+            data = data + formData + "&exportMode=" + exportMode;
+            var url = "/loadproductsinstock?" + data;
+            window.open(url);
+        }
+
+    </script>
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light">Reports /</span> Products In Stock
+            </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="m-2">
+                            <form id="reportform" onsubmit="event.preventDefault();">
+                                <div class="row">
+                                    <div class="col-12 mb-3" style="display: flex">
+                                        <div>
+                                            <input class="form-check-input"
+                                                   type="radio"
+                                                   name="radioPDF"
+                                                   id="radioPDF" checked
+                                                   value="pdf">
+                                            <label class="form-check-label" for="radioPDF"> PDF </label>
+                                        </div>
+
+                                        <div style="margin-left: 10px;">
+                                            <input class="form-check-input"
+                                                   type="radio"
+                                                   name="radioPDF"
+                                                   id="radioExcel"
+                                                   value="excel">
+                                            <label class="form-check-label" for="radioExcel"> Excel </label>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <button id="btnShow"
+                                        type="button"
+                                        class="btn btn-primary"
+                                        style="margin-top: 10px"
+                                        onclick="showReport();">Show Report</button>
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

@@ -1,0 +1,111 @@
+<div xmlns:th="http://www.w3.org/1999/xhtml">
+    <div th:fragment="global-css">
+        <style>
+            #outerdiv {
+                margin: 0px;
+                padding: 0px;
+                position: absolute;
+                right: 0px;
+                top: 40%;
+                width: 100%;
+                height: auto;
+                z-index: 30001;
+            }
+
+            .overlay {
+                position: absolute;
+                color: black;
+                top: 40%;
+                left: 50%;
+            }
+
+            /*----Toast CSS Start-------*/
+            #toaster {
+                visibility: hidden;
+                position: fixed;
+                z-index: 1;
+                right: 20px;
+                bottom: 20px;
+                font-size: 17px;
+            }
+
+            #toaster.show {
+                visibility: visible;
+            }
+            /*-----------Toast CSS Stop------------*/
+
+            .mandatoryfield {
+                color: #ff0000;
+                font-weight: bold;
+                padding-left: 2px;
+            }
+        </style>
+    </div>
+
+    <div th:fragment="global-scripts">
+        <script th:inline="javascript">
+            function startLoader(formId) {
+                $("#outerdiv").css({opacity: 0.5});
+                $("#customloader").css('display', 'block'); // Hide element
+                $(formId).prop("disabled", true);
+            }
+
+            function stopLoader(formId) {
+                $("#outerdiv").css({opacity: 1});
+                $(formId).prop("disabled", false);
+                $("#customloader").css('display', 'none'); // Show element
+            }
+
+            function toasterDisplay(status, message) {
+                let x = document.getElementById("toaster");
+                let msgBody = document.getElementById("toasterMsgBody");
+                let bgToaster = document.getElementById('toaster-bg');
+                let toasterHeading = document.getElementById('toasterHeading');
+
+                msgBody.innerText = message ? message : "Opps! Something is wrong.";
+                toasterHeading.innerText = status.toUpperCase();
+                x.className = "show";
+                document.getElementById("toaster_close_button").style.display = "inline-block";
+
+                if (status === "success") {
+                    bgToaster.classList.remove("bg-danger");
+                    bgToaster.classList.add("bg-success");
+                } else if (status === "error"){
+                    bgToaster.classList.remove("bg-success");
+                    bgToaster.classList.add("bg-danger");
+                }
+                setTimeout(function () {
+                    document.getElementById("toaster_close_button").style.display = "none";
+                    x.className = x.className.replace("show", "");
+                }, 1500);
+            }
+        </script>
+    </div>
+
+    <div th:fragment="footer">
+        <footer class="content-footer footer bg-footer-theme">
+            <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                <div class="mb-2 mb-md-0">
+                    Copyright &copy;
+                    <script>
+                        document.write(new Date().getFullYear());
+                    </script>
+                    All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!--Toast Message implementation-->
+    <div id="toaster" th:fragment="toaster">
+        <div class="bs-toast toast fade show" role="alert" aria-live="assertive" aria-atomic="true" id="toaster-bg">
+            <div class="toast-header">
+                <i class="bx bx-bell me-2"></i>
+                <div class="me-auto fw-semibold" id="toasterHeading"></div>
+                <button type="button" id="toaster_close_button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toasterMsgBody"></div>
+        </div>
+    </div>
+
+</div>

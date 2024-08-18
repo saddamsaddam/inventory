@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <title>User</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-10">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light"> User's Profile </span></h4>
+        </div>
+        <div class="col-2">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="container">
+                        <form id="userprofileform" onsubmit="event.preventDefault();" enctype="multipart/form-data">
+                            <h2> Personal Information </h2>
+                            <div class="m-2 container-fluid" style="background-color: #D4FFFF; border-radius: 10px;">
+                                <br>
+                                <div class="row">
+                                    <input type="hidden" name="id" id="id" th:value="${user.id}">
+                                    <input type="hidden" name="userName" id="userName" th:value="${user.userName}">
+
+                                    <div class="col-6 mb-3 mt-3">
+                                        <label class="form-label" for="first_name"> First Name: <span
+                                                class="mandatoryfield"> * </span> </label>
+                                        <input type="text" name="first_name" id="first_name"
+                                               class="form-control" th:value="${user.firstName}" required>
+                                    </div>
+
+                                    <div class="col-6 mb-3 mt-3">
+                                        <label class="form-label" for="last_name"> Last Name: <span class="mandatoryfield"> * </span>
+                                        </label>
+                                        <input type="text" name="last_name" id="last_name"
+                                               class="form-control" th:value="${user.lastName}" required>
+                                    </div>
+
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label" for="email"> Email: <span class="mandatoryfield"> * </span>
+                                        </label>
+                                        <input type="email" name="email" id="email"
+                                               class="form-control" th:value="${user.email}" required>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </form>
+
+                        <br>
+
+                        <div class="mb-3" style="text-align: center">
+                            <button id="btnUpdateUser" name="btnUpdateUser" type="button" class="btn btn-primary"
+                                    onclick="updateUserFn();"><i
+                                    class="fa fa-check"></i>Update
+                            </button>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="view/userprofile/script :: editscript"></div>
+
+</div>
+
+</html>

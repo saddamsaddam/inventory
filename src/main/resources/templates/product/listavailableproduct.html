@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <meta charset="utf-8"/>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadProductList();
+        });
+
+        function loadProductList() {
+            $.ajax({
+                type: "get",
+                url: "/api/listavailableproduct",
+                data: "",
+                dataType: "json",
+                success: function (data) {
+                    var dataObj = data.queryList;
+                    $('#listProduct').DataTable({
+                        "aaData": dataObj,
+                        "columns": [
+                            {"data": "productId"},
+                            {"data": "name"},
+                            {"data": "brand"},
+                            {"data": "availableUnit"},
+                            {"data": "unitPrice"},
+                            {"data": "createdBy"}
+                        ]
+                    });
+                },
+                error: function (request, status, error) {
+                    swal.fire(request.responseJSON.error);
+                }
+            });
+        }
+
+    </script>
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light">Product /</span> Product List
+            </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <table id="listProduct" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Product Code</th>
+                            <th>Name</th>
+                            <th>Brand</th>
+                            <th>Available Unit</th>
+                            <th>Unit Price</th>
+                            <th>Created By</th>
+<!--                            <th>Action</th>-->
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <meta charset="utf-8"/>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadSupplierList();
+        });
+
+        function loadSupplierList() {
+            $.ajax({
+                type: "get",
+                url: "/api/getsupplierlist",
+                data: "",
+                dataType: "json",
+                success: function (data) {
+                    var dataObj = data.queryList;
+                    $('#listProduct').DataTable({
+                        "aaData": dataObj,
+                        "columns": [
+                            {"data": "name"},
+                            {"data": "address"},
+                            {"data": "email"},
+                            {"data": "phone"},
+                            {"data": "createdBy"},
+                            {
+                                "data": function (data, type, row, meta) {
+                                    return '<a href="#" onclick="showSupplierData(' + '\'' + data.id + '\')" data-bs-toggle="modal" data-bs-target="#largeModal"><i title="View" class="bx bxs-show me-1"></i></a>'
+                                        + ' | ' + '<a href="#" onclick="setDataToForm(' + '\'' + data.id + '\',' + '\'' + data.id + '\')"><i title="Edit" class="bx bx-edit-alt me-1"></i></a>'
+                                        + ' | ' + '<a href="#" onclick="deleteSupplierData(' + '\'' + data.id + '\')" data-bs-toggle="modal" data-bs-target="#modalTop"><i class="bx bxs-trash me-1"></i></a>';
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function (request, status, error) {
+                    swal.fire(request.responseJSON.error);
+                }
+            });
+        }
+
+        function setDataToForm(id, ids) {
+            var url = "/editsupplier?id=" + id;
+            window.open(url, '_blank').focus();
+        }
+
+        function deleteSupplierData(id) {
+            Swal.fire({
+                title: 'Are you want to delete?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteSupplier(id);
+                }
+            })
+        }
+
+        function deleteSupplier(id) {
+            var url = '/deletesupplier';
+            $.ajax({
+                type: 'POST',
+                url: url, // Your Spring REST endpoint
+                data: {id: id},
+                success: function (data) {
+                    if (data) {
+                        toasterDisplay("success", "Successfully Deleted.");
+                        setTimeout(function () {
+                            var url = "/listsupplier";
+                            window.open(url, "_self");
+                        }, 2000);
+                    } else {
+                        swal.fire("Supplier not found!");
+                    }
+                },
+                error: function (error) {
+                    console.log("Error occured!");
+                }
+            });
+        }
+
+        function showSupplierData(id) {
+            $.ajax({
+                type: "get",
+                url: "/api/viewsupplier",
+                data: {id: id},
+                contentType: 'application/json',
+                success: function (data) {
+                    document.getElementById("modalHeaderTitle").innerHTML = "Product Details";
+                    let content =
+
+                        '<tr>' +
+                        '<td style="width: 170px;"> <strong> Supplier Name: </strong> </td>' +
+                        '<td>' + data.name + '</td>' +
+                        '</tr>' +
+
+                        '<tr>' +
+                        '<td style="width: 170px;"> <strong> Address: </strong> </td>' +
+                        '<td>' + data.address + '</td>' +
+                        '</tr>' +
+
+                        '<tr>' +
+                        '<td style="width: 170px;"> <strong>  Email: </strong> </td>' +
+                        '<td>' + data.email + '</td>' +
+                        '</tr>' +
+
+                        '<tr>' +
+                        '<td style="width: 170px;"> <strong>  phone: </strong> </td>' +
+                        '<td>' + data.phone + '</td>' +
+                        '</tr>' +
+
+                        '<tr>' +
+                        '<td style="width: 170px;"> <strong> Created By: </strong> </td>' +
+                        '<td>' + data.createdBy + '</td>' +
+                        '</tr>' +
+
+                        '<tr>' +
+                        '<td style="width: 170px;"> <strong> Updated By: </strong> </td>' +
+                        '<td>' + data.updatedBy + '</td>' +
+                        '</tr>';
+                    $("#modalContent").html(content);
+                },
+                error: function (request, status, error) {
+                    toasterDisplay('error', "Error occurred");
+                }
+            });
+        }
+
+    </script>
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light">Supplier /</span> Supplier List
+            </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <table id="listProduct" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Supplier Name</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Created By</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:fragment="modal" xmlns:th="http://www.w3.org/1999/xhtml">
+        <!-- Modal -->
+        <div class="modal fade" id="largeModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalHeaderTitle"></h5>
+                        <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive text-nowrap">
+                            <table class="table table-sm table-bordered rounded" style="table-layout: fixed;">
+                                <tbody id="modalContent"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+</html>

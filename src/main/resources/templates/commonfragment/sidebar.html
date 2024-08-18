@@ -1,0 +1,116 @@
+<div xmlns:th="http://www.w3.org/1999/xhtml"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" th:fragment="sidebar">
+        <div class="app-brand demo">
+            <a href="/home" class="app-brand-link">
+              <span class="app-brand-logo demo py-1">
+                <img th:src="@{/asset/images/home.png}" alt="User Name" width="40"/>
+              </span>
+                <span class="app-brand-text demo menu-text fw-bolder ms-2">IA</span>
+            </a>
+
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                <i class="bx bx-chevron-left bx-sm align-middle"></i>
+            </a>
+        </div>
+
+        <div class="menu-inner-shadow"></div>
+
+        <ul class="menu-inner py-1 mb-5">
+
+            <!-- Dashboard -->
+            <li th:class="${#httpServletRequest.requestURI.contains('home')} ? 'menu-item active' : 'menu-item'">
+                <a href="/home" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                    <div data-i18n="Analytics">Home</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('createproduct')} ? 'menu-item active' : 'menu-item'">
+                <a href="/createproduct" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-shopping-bags"></i>
+                    <div data-i18n="Basic">Purchase Product</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('listpurchaseproduct')} ? 'menu-item active' : 'menu-item'">
+                <a href="/listpurchaseproduct" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-shopping-bags"></i>
+                    <div data-i18n="Basic">Purchased Product List</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('listavailableproduct')} ? 'menu-item active' : 'menu-item'">
+                <a href="/listavailableproduct" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-shopping-bags"></i>
+                    <div data-i18n="Basic">Available Products List</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('createsupplier')} ? 'menu-item active' : 'menu-item'">
+                <a href="/createsupplier" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-offer"></i>
+                    <div data-i18n="Basic">Create Supplier</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('listsupplier')} ? 'menu-item active' : 'menu-item'">
+                <a href="/listsupplier" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-offer"></i>
+                    <div data-i18n="Basic">Supplier List</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('createsale')} ? 'menu-item active' : 'menu-item'">
+                <a href="/createsale" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-purchase-tag"></i>
+                    <div data-i18n="Basic">Create Sale</div>
+                </a>
+            </li>
+
+            <li th:class="${#httpServletRequest.requestURI.contains('listsoldproduct')} ? 'menu-item active' : 'menu-item'">
+                <a href="/listsoldproduct" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-purchase-tag"></i>
+                    <div data-i18n="Basic">Sold Product List</div>
+                </a>
+            </li>
+
+
+<!--            <li th:class="${#httpServletRequest.requestURI.contains('editprofile')} ? 'menu-item active' : 'menu-item'">-->
+<!--                <a th:href="@{/user/editprofile(id=${session.userId})}" class="menu-link">-->
+<!--                    <i class="menu-icon tf-icons bx bx-image"></i>-->
+<!--                    <div data-i18n="Basic">My Profile</div>-->
+<!--                </a>-->
+<!--            </li>-->
+
+<!--            <li th:class="${#httpServletRequest.requestURI.contains('change-password')} ? 'menu-item active' : 'menu-item'">-->
+<!--                <a href="/user/change-password" class="menu-link">-->
+<!--                    <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>-->
+<!--                    <div data-i18n="Basic">Change Password</div>-->
+<!--                </a>-->
+<!--            </li>-->
+
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bxs-report"></i>
+                    <div data-i18n="Account Settings">Reports</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li th:class="${#httpServletRequest.requestURI.contains('viewloadproductsinstock')} ? 'menu-item active' : 'menu-item'">
+                        <a href="/viewloadproductsinstock" class="menu-link">
+                            <div data-i18n="Basic">In Stock List Report</div>
+                        </a>
+                    </li>
+
+                    <li th:class="${#httpServletRequest.requestURI.contains('viewproductssoldlist')} ? 'menu-item active' : 'menu-item'">
+                        <a href="/viewproductssoldlist" class="menu-link">
+                            <div data-i18n="Basic">Sold Products Report</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+    </aside>
+</div>

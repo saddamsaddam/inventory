@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <meta charset="utf-8"/>
+
+    <script type="text/javascript">
+        var loaderId = "#customloader";
+        let jsonArray = [];
+
+        $(document).ready(function () {
+            $(":input[data-inputmask-alias]").inputmask();
+        });
+
+        function showProductList() {
+            var productId = $("#product_id").val();
+            var productName = $("#product_name").val();
+            if (!productId && !productName) {
+                swal.fire("Please type Product Code or Product Name.");
+                return false;
+            }
+
+            startLoader(loaderId);
+
+            $.ajax({
+                type: "get",
+                url: "/api/searchproductbyproductidandname",
+                data: {product_id: productId, product_name: productName},
+                dataType: "json",
+                success: function (data) {
+                    var dataObj = data.queryList;
+                    stopLoader(loaderId);
+                    if (dataObj.length == 0) {
+                        swal.fire("No record found.");
+                        $("#divList").css({display: "none"});
+                    } else {
+                        $("#divList").css({display: "block"});
+                    }
+
+
+                    $('#listProduct').DataTable({
+                        "aaData": dataObj,
+                        destroy: true,
+                        "columns": [
+                            {"data": "productId"},
+                            {"data": "name"},
+                            {"data": "brand"},
+                            {"data": "availableUnit"},
+                            {"data": "unitPrice"},
+                            {
+                                "data": function (data, type, row, meta) {
+                                    return '<input type="number" name="selling_unit" value=""/>'
+                                }
+                            },
+                            {
+                                "data": function (data, type, row, meta) {
+                                    return '<input type="number" name="selling_unit_price" value=""/>'
+                                }
+                            },
+                            {
+                                "data": function (data, type, row, meta) {
+                                    return '<button class="btn btn-danger remove" type="button" onclick="addProductData(this, ' + '\'' + data.id + '\')">Add</button>';
+                                }
+                            }
+                        ]
+                    });
+                    // toasterDisplay('success', data.message);
+                },
+                error: function (request, status, error) {
+                    stopLoader(formId);
+                    toasterDisplay('error', request.responseJSON.error);
+                }
+            });
+        }
+        function orderProduct() {
+            if (jsonArray.length === 0) {
+                swal.fire("Please select a product.");
+                return;
+            }
+
+            var custInfo = $("#salesForm").serialize();
+            var isValidated = getValidationData(custInfo);
+            if (!isValidated) {
+                return false;
+            }
+
+            var jsonData = JSON.stringify(jsonArray)
+            var data = custInfo + "&product_info=" + jsonData;
+            $.ajax({
+                type: "post",
+                url: "/savesale",
+                data: data,
+                dataType: "json",
+                success: function (data) {
+                    if (!data.isError) {
+                        toasterDisplay("success", "Successfully Created.");
+                        setTimeout(function () {
+                            var url = "/createsale";
+                            window.open(url, "_self");
+                        }, 1500);
+
+                    } else {
+                        toasterDisplay("error", data.errorText);
+                    }
+                },
+                error: function (request, status, error) {
+                    toasterDisplay("error", "Sales Creation Failed.");
+                }
+            });
+
+        }
+
+        function getValidationData(data) {
+
+            if (!$('#customer_name').val()) {
+                swal.fire("Customer Name can't be empty.");
+                return false;
+            }
+
+            if (!$('#address').val()) {
+                swal.fire("Address can't be empty.");
+                return false;
+            }
+
+            if (!$('#selling_date').val()) {
+                swal.fire("Selling Date can't be empty.");
+                return false;
+            }
+
+            return true;
+        }
+
+        function addProductData(button, id) {
+            var sellingUnit = ($(button).closest('tr').find('input[name="selling_unit"]').val());
+            var sellingUnitPrice = ($(button).closest('tr').find('input[name="selling_unit_price"]').val());
+
+            if (!sellingUnit) {
+                swal.fire("Selling Unit can't be empty.");
+                return;
+            }
+
+            if (parseInt(sellingUnit) <=0 ) {
+                swal.fire("Selling Unit must be greater than Zero.");
+                return;
+            }
+
+            if (!sellingUnitPrice) {
+                swal.fire("Selling Unit Price can't be empty.");
+                return;
+            }
+
+            if (parseInt(sellingUnitPrice) <= 0) {
+                swal.fire("Selling Unit Price must be greater than Zero.");
+                return;
+            }
+
+            var availableUnit = parseInt($(button).closest("tr").find('td:eq(3)').text());
+            if (parseInt(sellingUnit) > availableUnit) {
+                swal.fire("Selling Unit can't be greater than Available.");
+                return;
+            }
+
+            // $(button).closest("tr").find('td:eq(3)').text(availableUnit -sellingUnit);
+
+            let jsonObject = {
+                id: id,
+                productCode: $(button).closest("tr").find('td:eq(0)').text(),
+                productName: $(button).closest("tr").find('td:eq(1)').text(),
+                brand: $(button).closest("tr").find('td:eq(2)').text(),
+                sellingUnit: sellingUnit,
+                sellingUnitPrice: sellingUnitPrice
+            };
+
+            addItemToCart(jsonObject);
+        }
+
+        function addItemToCart(data) {
+            // deleteRow("tblSelectedProduct", data.productCode);
+            // let obj = jsonArray.find(o => o.productCode === data.productCode);
+            // const index = jsonArray.indexOf(obj);
+            // if (index > -1) {
+            //     jsonArray.splice(index, 1);
+            // }
+
+            jsonArray.push(data);
+
+            $("#divSelectedProduct").css({display: "block"});
+
+            let dynamicRowHTML = `
+            <tr class="rowClass"">
+                <td class="row-index text-center">
+                    ${data.productCode}
+                </td>
+
+                <td class="row-index text-center">
+                    ${data.productName}
+                </td>
+
+                <td class="row-index text-center">
+                    ${data.brand}
+                </td>
+
+                <td class="row-index text-center">
+                    ${data.sellingUnit}
+                </td>
+
+                <td class="row-index text-center">
+                    ${data.sellingUnitPrice}
+                </td>
+
+                <td class="text-center">
+                    <button class="btn btn-danger remove" onclick = "removeItem(this)"
+                        type="button">Remove
+                    </button>
+                </td>
+            </tr>`;
+
+            $('#sel_prod_tbody').append(dynamicRowHTML);
+        }
+
+        function deleteRow(tblId, given_value) {
+            var td = $("#" + tblId + " td");
+            $.each(td, function(i) {
+                if ($(td[i]).text().trim() === given_value) {
+                    $(td[i]).parent().remove();
+                }
+            });
+        }
+
+        function removeItem(button){
+            $(button).closest('tr').remove();
+            var productCode = $(button).closest("tr").find('td:eq(0)').text().trim();
+            let obj = jsonArray.find(o => o.productCode === productCode);
+            const index = jsonArray.indexOf(obj);
+            if (index > -1) {
+                jsonArray.splice(index, 1);
+            }
+
+            if(jsonArray.length == 0){
+                $("#divSelectedProduct").css({display: "none"});
+            }
+        }
+
+    </script>
+
+</head>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3"><span class="text-muted fw-light">Product Search/</span> Available Products for
+                Sale
+            </h4>
+        </div>
+    </div>
+
+    <div class="container" th:fragment="firstcreate">
+        <form id="reportform" onsubmit="event.preventDefault();">
+
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label" for="product_id"> Product Code: <span
+                            class="mandatoryfield"> * </span> </label>
+                    <input type="text" name="product_id" id="product_id" class="form-control">
+                </div>
+
+                <div class="col-6 mb-3">
+                    <label class="form-label" for="product_name"> Product Name: <span
+                            class="mandatoryfield"> * </span> </label>
+                    <input type="text" name="product_name" id="product_name" class="form-control">
+                </div>
+            </div>
+
+            <button id="saveSubject"
+                    type="button"
+                    class="btn btn-primary"
+                    style="margin-top: 10px"
+                    onclick="showProductList();">Search
+            </button>
+        </form>
+    </div>
+
+    <div id="divList" style="margin-top: 25px; display: none; border: 1px solid #eee3e3; padding-top: 10px;"
+         class="container">
+
+        <table id="listProduct" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Product Code</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Available Unit</th>
+                <th>Unit Price</th>
+                <th>Selling Unit</th>
+                <th>Selling Unit Price</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+        </table>
+
+    </div>
+
+    <div id="divSelectedProduct" style="margin-top: 30px; display: none;">
+        <h4> Selected Product Information </h4>
+        <table id="tblSelectedProduct" class="table table-bordered"
+               style="margin-top: 10px; background: white; width: fit-content;">
+            <thead>
+            <tr>
+                <th class="text-center">
+                    Product Code
+                </th>
+
+                <th class="text-center">
+                    Product Name
+                </th>
+
+                <th class="text-center">
+                    Brand
+                </th>
+
+                <th class="text-center">
+                    Selling Unit
+                </th>
+
+                <th class="text-center">
+                    Selling Unit Price
+                </th>
+                <th class="text-center">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody id="sel_prod_tbody">
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="" style="margin-top: 20px;">
+        <div>
+            <form id="salesForm" onsubmit="event.preventDefault();">
+                <h4> Customer Information </h4>
+                <div class=""
+                     style="background-color: #D4FFFF; border-radius: 10px; padding: 15px">
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="customer_name"> Customer Name: <span
+                                    class="mandatoryfield"> * </span> </label>
+                            <input type="text" name="customer_name" id="customer_name"
+                                   class="form-control" required>
+                        </div>
+
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="address"> Address: <span
+                                    class="mandatoryfield"> * </span> </label>
+                            <input type="text" name="address" id="address"
+                                   class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="email"> Email: </label>
+                            <input type="text" name="email" id="email" class="form-control">
+                        </div>
+
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="phone"> Phone: </label>
+                            <input type="text" name="phone" id="phone" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="selling_date"> Selling Date:
+                                <span class="mandatoryfield"> * </span> </label>
+                            <input type="text" name="selling_date" id="selling_date"
+                                   data-inputmask-alias="dd/mm/yyyy"
+                                   data-val="true"
+                                   data-val-required="Required"
+                                   placeholder="dd/mm/yyyy"
+                                   class="form-control">
+                        </div>
+                    </div>
+
+                </div>
+
+                <br>
+                <div class="mb-3" style="text-align: center;">
+                    <button id="btnOrderProduct"
+                            type="button"
+                            class="btn btn-primary"
+                            style="margin-top: 10px"
+                            onclick="orderProduct();">Order
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</html>

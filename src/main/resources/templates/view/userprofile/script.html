@@ -1,0 +1,67 @@
+<div className="container" th:fragment="editscript" xmlns:th="http://www.w3.org/1999/xhtml">
+
+    <script th:inline="javascript">
+        var loaderId = "#customloader";
+        var isValidated = false;
+
+        // jQuery.noConflict();
+
+        $(document).ready(function () {
+           $(":input[data-inputmask-alias]").inputmask();
+        });
+
+        function updateUserFn() {
+
+            var form = $('#userprofileform')[0];
+            var data2 = new FormData(form);
+
+            isValidated = getValidationData();
+            if (!isValidated) {
+                return false;
+            }
+            $.ajax({
+                type: "post",
+                enctype: 'multipart/form-data',
+                url: "/user/updateuserprofile",
+                data: data2,
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 1000000,
+                success: function (data) {
+                    debugger
+                    if (!data.isError) {
+                        toasterDisplay("success", "Successfully Updated.");
+                    }
+                    else {
+                        toasterDisplay("error", "User Update Failed.");
+                    }
+                },
+                error: function (request, status, error) {
+                    toasterDisplay("error", "User Update Failed.");
+                }
+            });
+        }
+
+        function getValidationData() {
+            if (!$('#first_name').val()) {
+                swal.fire("First Name can't be empty.");
+                return false;
+            }if (!$('#last_name').val()) {
+                swal.fire("Last Name can't be empty.");
+                return false;
+            }if (!$('#email').val()) {
+                swal.fire("Email can't be empty.");
+                return false;
+            }
+
+            return true;
+        };
+
+        function resetUserForm() {
+            $("#userprofileform").find(':input').val('');
+        }
+
+    </script>
+
+</div>

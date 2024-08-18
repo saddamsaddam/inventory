@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_custom}">
+<head>
+    <title>Home</title>
+</head>
+<div layout:fragment="content">
+    <script type="text/javascript">
+    </script>
+
+    <!-- my custom fragments links here-->
+
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row">
+            <div class="col-lg-12 mb-4 order-0">
+                <div class="card" style="height: 200px">
+                    <div class="d-flex align-items-end row">
+                        <div class="col-sm-8">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary" style="color: #16afaf !important;">
+                                    Welcome
+                                    <span class="fw-semibold"
+                                          style="color: #1660af !important;"
+                                          th:utext="${session.userName}"></span>! 🎉</h5>
+                                <p class="mb-4">Welcome to the inventory application.</p>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/user/editprofile(id=${session.userId})}">
+                                    Update Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
